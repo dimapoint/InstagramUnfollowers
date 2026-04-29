@@ -1,6 +1,6 @@
 export interface Timings {
-  timeBetweenSearchCycles: number;
-  timeToWaitAfterFiveSearchCycles: number;
-  timeBetweenUnfollows: number;
-  timeToWaitAfterFiveUnfollows: number;
+	timeBetweenSearchCycles: number;
+	timeToWaitAfterFiveSearchCycles: number;
+	timeBetweenUnfollows: number;
+	timeToWaitAfterFiveUnfollows: number;
 }

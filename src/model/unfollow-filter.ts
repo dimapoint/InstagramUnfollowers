@@ -1,4 +1,4 @@
 export interface UnfollowFilter {
-  readonly showSucceeded: boolean;
-  readonly showFailed: boolean;
+	readonly showSucceeded: boolean;
+	readonly showFailed: boolean;
 }
