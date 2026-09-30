@@ -1,5 +1,5 @@
 import { UserNode } from "../model/user";
-import { DEFAULT_USERS_PER_SEARCH_CYCLE, INSTAGRAM_WEB_APP_ID, UNFOLLOWERS_PER_PAGE, WITHOUT_PROFILE_PICTURE_URL_IDS } from "../constants/constants";
+import { DEFAULT_USERS_PER_SEARCH_CYCLE, INSTAGRAM_WEB_APP_ID, WITHOUT_PROFILE_PICTURE_URL_IDS } from "../constants/constants";
 import { ScanningTab } from "../model/scanning-tab";
 import { ScanningFilter } from "../model/scanning-filter";
 import { UnfollowLogEntry } from "../model/unfollow-log-entry";
@@ -51,14 +51,8 @@ export function exportToCSV(users: readonly UserNode[]) {
   link.remove();
 }
 
-export function getMaxPage(nonFollowersList: readonly UserNode[]): number {
-  const pageCalc = Math.ceil(nonFollowersList.length / UNFOLLOWERS_PER_PAGE);
-  return pageCalc < 1 ? 1 : pageCalc;
-}
-
-export function getCurrentPageUnfollowers(nonFollowersList: readonly UserNode[], currentPage: number): readonly UserNode[] {
-  const sortedList = [...nonFollowersList].sort((a, b) => (a.username > b.username ? 1 : -1));
-  return sortedList.splice(UNFOLLOWERS_PER_PAGE * (currentPage - 1), UNFOLLOWERS_PER_PAGE);
+export function sortByUsername(list: readonly UserNode[]): readonly UserNode[] {
+  return [...list].sort((a, b) => (a.username > b.username ? 1 : -1));
 }
 
 export function isWithoutProfilePicture(user: UserNode): boolean {

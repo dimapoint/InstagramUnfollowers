@@ -6,7 +6,6 @@ import { UnfollowFilter } from "./unfollow-filter";
 
 type ScanningState = {
   readonly status: 'scanning';
-  readonly page: number;
   readonly currentTab: ScanningTab;
   readonly searchTerm: string;
   readonly percentage: number;

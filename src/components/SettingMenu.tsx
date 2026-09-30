@@ -61,7 +61,7 @@ export const SettingMenu = ({
                   type="number"
                   id="searchCycles"
                   name="searchCycles"
-                  min={500}
+                  min={0}
                   max={999999}
                   value={timeBetweenSearchCycles}
                   onChange={(e) => handleInputChange(e, setTimeBetweenSearchCycles)}
@@ -75,7 +75,7 @@ export const SettingMenu = ({
                   type="number"
                   id="fiveSearchCycles"
                   name="fiveSearchCycles"
-                  min={4000}
+                  min={0}
                   max={999999}
                   value={timeToWaitAfterFiveSearchCycles}
                   onChange={(e) => handleInputChange(e, setTimeToWaitAfterFiveSearchCycles)}

@@ -1,5 +1,5 @@
 import React from "react";
-import { assertUnreachable, getCurrentPageUnfollowers, getMaxPage, getUsersForDisplay, isWithoutProfilePicture } from "../utils/utils";
+import { assertUnreachable, getUsersForDisplay, isWithoutProfilePicture, sortByUsername } from "../utils/utils";
 import { State } from "../model/state";
 import { UserNode } from "../model/user";
 import { WHITELISTED_RESULTS_STORAGE_KEY } from "../constants/constants";
@@ -220,37 +220,6 @@ export const Searching = ({
             >
               {scanningPaused ? "Resume" : "Pause"}
             </button>
-            <div className="sidebar-pagination">
-              <div className="pagination-controls">
-                <a
-                  onClick={() => {
-                    if (state.page - 1 > 0) {
-                      setState({
-                        ...state,
-                        page: state.page - 1,
-                      });
-                    }
-                  }}
-                >
-                  ❮
-                </a>
-                <span>
-                  {state.page}/{getMaxPage(usersForDisplay)}
-                </span>
-                <a
-                  onClick={() => {
-                    if (state.page < getMaxPage(usersForDisplay)) {
-                      setState({
-                        ...state,
-                        page: state.page + 1,
-                      });
-                    }
-                  }}
-                >
-                  ❯
-                </a>
-              </div>
-            </div>
           </div>
         </div>
         <button
@@ -298,7 +267,6 @@ export const Searching = ({
               setState({
                 ...state,
                 currentTab: "non_whitelisted",
-                page: 1,
               });
             }}
           >
@@ -314,14 +282,13 @@ export const Searching = ({
               setState({
                 ...state,
                 currentTab: "whitelisted",
-                page: 1,
               });
             }}
           >
             Whitelisted
           </button>
         </nav>
-        {getCurrentPageUnfollowers(usersForDisplay, state.page).map(user => {
+        {sortByUsername(usersForDisplay).map(user => {
           const firstLetter = user.username.substring(0, 1).toUpperCase();
           return (
             <>
@@ -358,6 +325,7 @@ export const Searching = ({
                   >
                     <img
                       className="avatar"
+                      loading="lazy"
                       alt={user.username}
                       src={user.profile_pic_url}
                     />

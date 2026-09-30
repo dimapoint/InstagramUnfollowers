@@ -21,7 +21,6 @@ import {
   fetchFriendshipsPage,
   FriendshipsListKind,
   getCookie,
-  getCurrentPageUnfollowers,
   getUsersForDisplay,
   RawFriendshipUser,
   rawFriendshipUserToUserNode,
@@ -101,7 +100,6 @@ function App() {
       isLocalPreview && new URLSearchParams(location.search).get("preview") === "scanning"
         ? {
           status: "scanning",
-          page: 1,
           searchTerm: "",
           currentTab: "non_whitelisted",
           percentage: 100,
@@ -162,7 +160,6 @@ function App() {
       const previewUsers = _getPreviewUsers();
       setState({
         status: "scanning",
-        page: 1,
         searchTerm: "",
         currentTab: "non_whitelisted",
         percentage: 100,
@@ -182,7 +179,6 @@ function App() {
     const whitelistedResults = loadWhitelist();
     setState({
       status: "scanning",
-      page: 1,
       searchTerm: "",
       currentTab: "non_whitelisted",
       percentage: 0,
@@ -277,37 +273,6 @@ function App() {
       setState({
         ...state,
         selectedResults: state.selectedResults.filter(u => !displayedIds.has(u.id)),
-      });
-    }
-  };
-
-  // it will work the same as toggleAllUsers, but it will select everyone on the current page.
-  const toggleCurrentePageUsers = (e: ChangeEvent<HTMLInputElement>) => {
-    if (state.status !== "scanning") {
-      return;
-    }
-    const pageUsers = getCurrentPageUnfollowers(
-      getUsersForDisplay(
-        state.results,
-        state.whitelistedResults,
-        state.currentTab,
-        state.searchTerm,
-        state.filter,
-      ),
-      state.page,
-    );
-    if (e.currentTarget.checked) {
-      const currentIds = new Set(state.selectedResults.map(u => u.id));
-      const toAdd = pageUsers.filter(u => !currentIds.has(u.id));
-      setState({
-        ...state,
-        selectedResults: [...state.selectedResults, ...toAdd],
-      });
-    } else {
-      const pageUserIds = new Set(pageUsers.map(u => u.id));
-      setState({
-        ...state,
-        selectedResults: state.selectedResults.filter(u => !pageUserIds.has(u.id)),
       });
     }
   };
@@ -428,10 +393,12 @@ function App() {
         if (scrollCycle > 6) {
           scrollCycle = 0;
           // Variable long sleep to avoid patterns
-          const longSleepVar = Math.max(
-            0,
-            timings.timeToWaitAfterFiveSearchCycles + (Math.random() * 10000 - 5000), // +/- 5 seconds
-          );
+          const longSleepVar = timings.timeToWaitAfterFiveSearchCycles === 0
+            ? 0
+            : Math.max(
+                0,
+                timings.timeToWaitAfterFiveSearchCycles + (Math.random() * 10000 - 5000), // +/- 5 seconds
+              );
           setToast({
             show: true,
             text: `Sleeping ${Math.round(longSleepVar / 1000)} seconds to prevent getting temp blocked`,
@@ -657,7 +624,6 @@ function App() {
           setState={setState}
           isActiveProcess={isActiveProcess}
           toggleAllUsers={toggleAllUsers}
-          toggleCurrentePageUsers={toggleCurrentePageUsers}
           setTimings={setTimings}
           currentTimings={timings}
           whitelistedUsers={state.status === "scanning" ? state.whitelistedResults : loadWhitelist()}

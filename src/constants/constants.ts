@@ -1,5 +1,4 @@
 export const INSTAGRAM_HOSTNAME = "www.instagram.com";
-export const UNFOLLOWERS_PER_PAGE = 50;
 
 // The app id Instagram's own web frontend sends on its private REST API
 // calls (e.g. /api/v1/friendships/<id>/following/). Required or these

@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useState } from "react";
 import { State } from "../model/state";
-import { assertUnreachable, copyListToClipboard, exportToCSV, exportToJSON, getCurrentPageUnfollowers, getUsersForDisplay } from "../utils/utils";
+import { assertUnreachable, copyListToClipboard, exportToCSV, exportToJSON, getUsersForDisplay } from "../utils/utils";
 import { SettingMenu } from "./SettingMenu";
 import { SettingIcon } from "./icons/SettingIcon";
 import { Timings } from "../model/timings";
@@ -12,7 +12,6 @@ interface ToolBarProps {
   state: State;
   setState: (state: State) => void;
   toggleAllUsers: (e: ChangeEvent<HTMLInputElement>) => void;
-  toggleCurrentePageUsers: (e: ChangeEvent<HTMLInputElement>) => void;
   currentTimings: Timings;
   setTimings: (timings: Timings) => void;
   whitelistedUsers: readonly UserNode[];
@@ -24,7 +23,6 @@ export const Toolbar = ({
   state,
   setState,
   toggleAllUsers,
-  toggleCurrentePageUsers,
   currentTimings,
   setTimings,
   whitelistedUsers,
@@ -160,26 +158,6 @@ export const Toolbar = ({
               }
             }}
           />
-          {state.status === "scanning" && (
-            <label className="select-toggle">
-              <input
-                title="Select all on this page"
-                type="checkbox"
-                // Avoid allowing selection while the scan is incomplete and the visible result set is still moving.
-                disabled={state.percentage < 100}
-                checked={
-                  (() => {
-                    const displayed = getUsersForDisplay(state.results, state.whitelistedResults, state.currentTab, state.searchTerm, state.filter);
-                    const pageUsers = getCurrentPageUnfollowers(displayed, state.page);
-                    return pageUsers.length > 0 && pageUsers.every(u => state.selectedResults.some(s => s.id === u.id));
-                  })()
-                }
-                className="toggle-all-checkbox"
-                onChange={toggleCurrentePageUsers}
-              />
-              Page
-            </label>
-          )}
           {state.status === "scanning" && (
             <label className="select-toggle">
               <input
