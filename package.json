@@ -1,10 +1,11 @@
 {
   "scripts": {
     "webpack-build": "webpack --mode production",
-    "build-dev": "npm run build && webpack serve --mode development",
-    "build-prod": "npm run build && webpack serve --mode production",
-    "update-index": "node scripts/update-index.js public/index.html dist/dist.js",
-    "build": "npm run webpack-build && npm run update-index"
+    "build-dev": "bun run build && webpack serve --mode development",
+    "build-prod": "bun run build && webpack serve --mode production",
+    "update-index": "bun scripts/update-index.js public/index.html dist/dist.js",
+    "build": "bun run webpack-build && bun run update-index",
+    "copy": "bun run build &&powershell -NoProfile -Command \"Get-Content dist/dist.js -Raw -Encoding UTF8 | Set-Clipboard\""
   },
   "devDependencies": {
     "css-loader": "^7.1.5",

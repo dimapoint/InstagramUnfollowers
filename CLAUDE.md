@@ -8,12 +8,13 @@ A Preact + TypeScript app bundled into a single script (`dist/dist.js`) that the
 
 ## Commands
 
-- `npm run build` — webpack production build to `dist/dist.js`, then `scripts/update-index.js` embeds the bundle into `public/index.html`. Always commit both files together.
-- `npx tsc --noEmit` — type check. `tsconfig.json` has `noUnusedLocals`/`noUnusedParameters`, so leftover imports fail.
-- `npm run build-dev` — build, then `webpack serve`.
+- `bun run build` — webpack production build to `dist/dist.js`, then `scripts/update-index.js` embeds the bundle into `public/index.html`. Always commit both files together.
+- `bun run copy` — build, then copy `dist/dist.js` to the clipboard (Windows).
+- `bunx tsc --noEmit` — type check. `tsconfig.json` has `noUnusedLocals`/`noUnusedParameters`, so leftover imports fail.
+- `bun run build-dev` — build, then `webpack serve`.
 - There are no tests and no linter configured.
 
-Node version is in `.nvmrc` (24). CI (`.github/workflows/build_and_deploy_pages.yaml`) runs `npm install && npm run build` on push to `master` and deploys `public/` to GitHub Pages.
+The project uses Bun (lockfile `bun.lock`), never npm. CI (`.github/workflows/build_and_deploy_pages.yaml`) runs `bun install --frozen-lockfile && bun run build` on push to `master` and deploys `public/` to GitHub Pages.
 
 ## Architecture
 
