@@ -6,6 +6,7 @@ import { SettingIcon } from "./icons/SettingIcon";
 import { Timings } from "../model/timings";
 import { Logo } from "./icons/Logo";
 import { UserNode } from "../model/user";
+import { Language, t } from "../utils/i18n";
 
 interface ToolBarProps {
   isActiveProcess: boolean;
@@ -16,6 +17,8 @@ interface ToolBarProps {
   setTimings: (timings: Timings) => void;
   whitelistedUsers: readonly UserNode[];
   onWhitelistUpdate: (users: readonly UserNode[]) => void;
+  lang: Language;
+  onLanguageChange: (lang: Language) => void;
 }
 
 export const Toolbar = ({
@@ -27,15 +30,17 @@ export const Toolbar = ({
   setTimings,
   whitelistedUsers,
   onWhitelistUpdate,
+  lang,
+  onLanguageChange,
 }: ToolBarProps) => {
 
-  const [setingMenu, setSettingMenu] = useState(false);
+  const [settingMenu, setSettingMenu] = useState(false);
 
   return (
     <header className="app-header">
       {state.status === "scanning" && state.results.length === 0 && (
         <div className="scan-warning-banner" role="status">
-          <span>⚠️ Accounts will not appear until the scan finishes or nears completion.</span>
+          <span>{t(lang, "scanNoticeBanner")}</span>
         </div>
       )}
       {isActiveProcess && (
@@ -54,7 +59,7 @@ export const Toolbar = ({
             }
             switch (state.status) {
               case "initial":
-                if (confirm("Go back to Instagram?")) {
+                if (confirm(t(lang, "goBackConfirm"))) {
                   location.reload();
                 }
                 break;
@@ -87,6 +92,7 @@ export const Toolbar = ({
                       state.searchTerm,
                       state.filter,
                     ),
+                    t(lang, "copiedToClipboard")
                   );
                 case "initial":
                 case "unfollowing":
@@ -97,11 +103,11 @@ export const Toolbar = ({
             }}
             disabled={state.status === "initial"}
           >
-            Copy
+            {t(lang, "copyList")}
           </button>
           <button
             className="copy-list"
-            title="Export to JSON"
+            title={t(lang, "exportJson")}
             onClick={() => {
               if (state.status === "scanning") {
                 exportToJSON(getUsersForDisplay(state.results, state.whitelistedResults, state.currentTab, state.searchTerm, state.filter));
@@ -113,7 +119,7 @@ export const Toolbar = ({
           </button>
           <button
             className="copy-list"
-            title="Export to CSV"
+            title={t(lang, "exportCsv")}
             onClick={() => {
               if (state.status === "scanning") {
                 exportToCSV(getUsersForDisplay(state.results, state.whitelistedResults, state.currentTab, state.searchTerm, state.filter));
@@ -124,9 +130,18 @@ export const Toolbar = ({
             CSV
           </button>
           <button
+            className="copy-list"
+            type="button"
+            title={lang === "en" ? t(lang, "switchToSpanish") : t(lang, "switchToEnglish")}
+            onClick={() => onLanguageChange(lang === "en" ? "es" : "en")}
+            style={{ fontWeight: "bold" }}
+          >
+            🌐 {lang.toUpperCase()}
+          </button>
+          <button
             className="icon-button"
             type="button"
-            title="Settings"
+            title={t(lang, "settings")}
             onClick={() => { setSettingMenu(true); }}
           >
             <SettingIcon />
@@ -136,7 +151,7 @@ export const Toolbar = ({
           <input
             type="text"
             className="search-bar"
-            placeholder="Search users"
+            placeholder={t(lang, "searchPlaceholder")}
             disabled={state.status === "initial"}
             value={state.status === "initial" ? "" : state.searchTerm}
             onChange={e => {
@@ -161,10 +176,10 @@ export const Toolbar = ({
           {state.status === "scanning" && (
             <label className="select-toggle">
               <input
-                title="Select all"
+                title={t(lang, "selectAll")}
                 type="checkbox"
-                // Avoid allowing selection while the scan is incomplete and the visible result set is still moving.
-                disabled={state.percentage < 100}
+                // Avoid allowing selection only while the scan is actively fetching
+                disabled={Boolean(state.isScanningActive)}
                 checked={
                   (() => {
                     const displayed = getUsersForDisplay(
@@ -180,20 +195,22 @@ export const Toolbar = ({
                 className="toggle-all-checkbox"
                 onChange={toggleAllUsers}
               />
-              All
+              {t(lang, "selectAll")}
             </label>
           )}
         </div>
       </div>
-      {(setingMenu) &&
+      {settingMenu && (
         <SettingMenu
           setSettingState={setSettingMenu}
           currentTimings={currentTimings}
           setTimings={setTimings}
           whitelistedUsers={whitelistedUsers}
           onWhitelistUpdate={onWhitelistUpdate}
-        ></SettingMenu>
-      }
+          lang={lang}
+          onLanguageChange={onLanguageChange}
+        />
+      )}
 
     </header>
   );
