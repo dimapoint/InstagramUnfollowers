@@ -13,6 +13,9 @@ type ScanningState = {
   readonly whitelistedResults: readonly UserNode[];
   readonly selectedResults: readonly UserNode[];
   readonly filter: ScanningFilter;
+  readonly scanIncomplete?: boolean;
+  readonly isScanningActive?: boolean;
+  readonly totalScanned?: number;
 };
 
 type UnfollowingState = {

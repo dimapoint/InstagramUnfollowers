@@ -3,6 +3,7 @@ import { assertUnreachable, getUsersForDisplay, isWithoutProfilePicture, sortByU
 import { State } from "../model/state";
 import { UserNode } from "../model/user";
 import { WHITELISTED_RESULTS_STORAGE_KEY } from "../constants/constants";
+import { Language, t } from "../utils/i18n";
 
 
 export interface SearchingProps {
@@ -14,6 +15,7 @@ export interface SearchingProps {
   toggleUser: (checked: boolean, user: UserNode) => void;
   UserCheckIcon: React.FC;
   UserUncheckIcon: React.FC;
+  lang: Language;
 }
 
 export const Searching = ({
@@ -25,6 +27,7 @@ export const Searching = ({
   toggleUser,
   UserCheckIcon,
   UserUncheckIcon,
+  lang,
 }: SearchingProps) => {
   if (state.status !== "scanning") {
     return null;
@@ -85,29 +88,11 @@ export const Searching = ({
       <aside className="app-sidebar">
         <div className="sidebar-content">
           <div className="panel-heading">
-            <span>Scanner</span>
+            <span>{t(lang, "scanner")}</span>
             <strong>{state.percentage}%</strong>
           </div>
           <menu className="sidebar-filters-grid">
-            <p>Filter</p>
-            <label className="badge m-small">
-              <input
-                type="checkbox"
-                name="showNonFollowers"
-                checked={state.filter.showNonFollowers}
-                onChange={handleScanFilter}
-              />
-              &nbsp;Non-Followers
-            </label>
-            <label className="badge m-small">
-              <input
-                type="checkbox"
-                name="showFollowers"
-                checked={state.filter.showFollowers}
-                onChange={handleScanFilter}
-              />
-              &nbsp;Followers
-            </label>
+            <p>{t(lang, "filters")}</p>
             <label className="badge m-small">
               <input
                 type="checkbox"
@@ -115,7 +100,7 @@ export const Searching = ({
                 checked={state.filter.showVerified}
                 onChange={handleScanFilter}
               />
-              &nbsp;Verified
+              &nbsp;{t(lang, "verified")}
             </label>
             <label className="badge m-small">
               <input
@@ -124,7 +109,7 @@ export const Searching = ({
                 checked={state.filter.showPrivate}
                 onChange={handleScanFilter}
               />
-              &nbsp;Private
+              &nbsp;{t(lang, "private")}
             </label>
             <label className="badge m-small">
               <input
@@ -133,13 +118,14 @@ export const Searching = ({
                 checked={state.filter.showWithOutProfilePicture}
                 onChange={handleScanFilter}
               />
-              &nbsp;No Pic
+              &nbsp;{t(lang, "noPic")}
             </label>
           </menu>
 
           <div className="sidebar-buttons-grid">
             <button
               className="button-secondary"
+              disabled={Boolean(state.isScanningActive)}
               onClick={() => {
                 const verifiedUsers = usersForDisplay.filter(u => u.is_verified);
                 const currentIds = new Set(state.selectedResults.map(u => u.id));
@@ -147,10 +133,11 @@ export const Searching = ({
                 setState({ ...state, selectedResults: [...state.selectedResults, ...toAdd] });
               }}
             >
-              Verified
+              {t(lang, "verified")}
             </button>
             <button
               className="button-secondary"
+              disabled={Boolean(state.isScanningActive)}
               onClick={() => {
                 const privateUsers = usersForDisplay.filter(u => u.is_private);
                 const currentIds = new Set(state.selectedResults.map(u => u.id));
@@ -158,10 +145,11 @@ export const Searching = ({
                 setState({ ...state, selectedResults: [...state.selectedResults, ...toAdd] });
               }}
             >
-              Private
+              {t(lang, "private")}
             </button>
             <button
               className="button-secondary"
+              disabled={Boolean(state.isScanningActive)}
               onClick={() => {
                 const noPicUsers = usersForDisplay.filter(u => isWithoutProfilePicture(u));
                 const currentIds = new Set(state.selectedResults.map(u => u.id));
@@ -169,13 +157,14 @@ export const Searching = ({
                 setState({ ...state, selectedResults: [...state.selectedResults, ...toAdd] });
               }}
             >
-              No Pic
+              {t(lang, "noPic")}
             </button>
             <button
               className="button-secondary danger-text"
+              disabled={Boolean(state.isScanningActive)}
               onClick={() => setState({ ...state, selectedResults: [] })}
             >
-              Clear
+              {t(lang, "clear")}
             </button>
           </div>
           {state.selectedResults.length > 0 && (
@@ -183,31 +172,31 @@ export const Searching = ({
               className="button-secondary sidebar-whitelist-action"
               onClick={handleSelectedWhitelistAction}
             >
-              {state.currentTab === "non_whitelisted" ? "Whitelist" : "Unwhitelist"} Selected ({state.selectedResults.length})
+              {state.currentTab === "non_whitelisted" ? t(lang, "addToWhitelist") : t(lang, "removeFromWhitelist")} ({state.selectedResults.length})
             </button>
           )}
           <div className="sidebar-stats metric-stack">
-            <p><span>Displayed</span><strong>{usersForDisplay.length}</strong></p>
-            <p><span>Total scanned</span><strong>{state.results.length}</strong></p>
+            <p><span>{t(lang, "displayed")}</span><strong>{usersForDisplay.length}</strong></p>
+            <p><span>{t(lang, "totalScanned")}</span><strong>{state.totalScanned ?? state.results.length}</strong></p>
             <p className="whitelist-counter">
-              <span>Whitelisted</span><strong>★ {state.whitelistedResults.length}</strong>
+              <span>{t(lang, "whitelist")}</span><strong>★ {state.whitelistedResults.length}</strong>
             </p>
           </div>
 
-          {state.percentage === 100 && (
+          {!state.isScanningActive && state.results.length > 0 && (
             <div className="sidebar-summary">
-              <h4>Scan Summary</h4>
+              <h4>{t(lang, "scanSummary")}</h4>
               <div className="summary-grid">
                 <div className="summary-item">
-                  <span>Non-Followers</span>
+                  <span>{t(lang, "nonFollowers")}</span>
                   <strong>{state.results.filter(u => !u.follows_viewer).length}</strong>
                 </div>
                 <div className="summary-item">
-                  <span>Verified</span>
+                  <span>{t(lang, "verified")}</span>
                   <strong>{state.results.filter(u => u.is_verified).length}</strong>
                 </div>
                 <div className="summary-item">
-                  <span>Private</span>
+                  <span>{t(lang, "private")}</span>
                   <strong>{state.results.filter(u => u.is_private).length}</strong>
                 </div>
               </div>
@@ -218,14 +207,26 @@ export const Searching = ({
               className="button-control button-pause"
               onClick={pauseScan}
             >
-              {scanningPaused ? "Resume" : "Pause"}
+              {scanningPaused ? t(lang, "resume") : t(lang, "pause")}
             </button>
           </div>
         </div>
         <button
           className="unfollow"
+          disabled={state.scanIncomplete || Boolean(state.isScanningActive) || state.selectedResults.length === 0}
+          title={
+            state.isScanningActive
+              ? t(lang, "scanInProgressWait")
+              : state.scanIncomplete
+              ? t(lang, "unfollowDisabledPartialScan")
+              : undefined
+          }
           onClick={() => {
-            if (!confirm("Are you sure?")) {
+            if (state.scanIncomplete) {
+              alert(t(lang, "unfollowDisabledPartialScan"));
+              return;
+            }
+            if (!confirm(t(lang, "unfollowConfirm"))) {
               return;
             }
             //TODO TEMP until types are properly fixed
@@ -235,7 +236,7 @@ export const Searching = ({
                 return prevState;
               }
               if (prevState.selectedResults.length === 0) {
-                alert("Must select at least a single user to unfollow");
+                alert(t(lang, "selectAtLeastOneUser"));
                 return prevState;
               }
               const newState: State = {
@@ -252,10 +253,15 @@ export const Searching = ({
             });
           }}
         >
-          Unfollow ({state.selectedResults.length})
+          {t(lang, "unfollowCount", state.selectedResults.length)}
         </button>
       </aside>
       <article className="results-container">
+        {state.scanIncomplete && (
+          <div className="scan-warning-banner scan-incomplete-banner" role="alert">
+            <span>{t(lang, "partialScanWarning")}</span>
+          </div>
+        )}
         <nav className="tabs-container">
           <button
             type="button"
@@ -270,7 +276,7 @@ export const Searching = ({
               });
             }}
           >
-            Non-Whitelisted
+            {t(lang, "nonWhitelistedTab")}
           </button>
           <button
             type="button"
@@ -285,13 +291,13 @@ export const Searching = ({
               });
             }}
           >
-            Whitelisted
+            {t(lang, "whitelistedTab")}
           </button>
         </nav>
         {sortByUsername(usersForDisplay).map(user => {
           const firstLetter = user.username.substring(0, 1).toUpperCase();
           return (
-            <>
+            <React.Fragment key={user.id}>
               {firstLetter !== currentLetter && onNewLetter(firstLetter)}
               <label className="result-item">
                 <div className="flex grow align-center">
@@ -351,7 +357,7 @@ export const Searching = ({
                   {user.is_verified && <div className="verified-badge">✔</div>}
                   {user.is_private && (
                     <div className="flex justify-center w-100">
-                      <span className="private-indicator">Private</span>
+                      <span className="private-indicator">{t(lang, "private")}</span>
                     </div>
                   )}
                 </div>
@@ -359,12 +365,13 @@ export const Searching = ({
                   <input
                     className="account-checkbox"
                     type="checkbox"
-                    checked={state.selectedResults.indexOf(user) !== -1}
+                    disabled={Boolean(state.isScanningActive)}
+                    checked={state.selectedResults.some(result => result.id === user.id)}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => toggleUser(e.currentTarget.checked, user)}
                   />
                 </div>
               </label>
-            </>
+            </React.Fragment>
           );
         })}
       </article>
