@@ -22,18 +22,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use node
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
+      - name: Use bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
-        run: npm install
+        run: bun install --frozen-lockfile
 
       - name: Update pages
         run: |
-          npm run build
+          bun run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
