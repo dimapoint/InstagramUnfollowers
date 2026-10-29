@@ -21,7 +21,7 @@ bun install
 bun run build
 ```
 
-`bun run build` type-checks with `tsc --noEmit`, writes `dist/dist.js` and copies it to the clipboard through PowerShell. The driver reads `dist/dist.js`, so **rebuild after every `src/` change** or you'll be testing the old bundle.
+`bun run build` runs webpack into `dist/dist.js` and then `scripts/update-index.js`, which embeds the bundle in `public/index.html`. Commit both together. It does **not** type-check: run `bunx tsc --noEmit` too. `bun run copy` builds and also copies the bundle to the clipboard. The driver reads `dist/dist.js`, so **rebuild after every `src/` change** or you'll be testing the old bundle.
 
 ## Run (agent path)
 
@@ -51,11 +51,11 @@ It fails when the results aren't exactly the 3 non-followers, the number of `/ap
 
 ## Run (human path)
 
-`bun run build`, open instagram.com logged in, paste the clipboard into the DevTools console. Real account, real unfollows: never do this from an agent.
+`bun run copy`, open instagram.com logged in, paste the clipboard into the DevTools console. Real account, real unfollows: never do this from an agent.
 
 ## Test
 
-There is no test suite. `bun run build` (tsc) plus the driver's `OK` is the check. `bunx eslint src` has ~300 pre-existing errors, so only read it for the files you touched.
+There is no test suite and no linter. `bunx tsc --noEmit` plus the driver's `OK` is the check.
 
 ## Gotchas
 
@@ -65,4 +65,5 @@ There is no test suite. `bun run build` (tsc) plus the driver's `OK` is the chec
 - **Checkboxes are disabled while scanning.** Wait for `.account-checkbox:not([disabled])` before selecting. `button.unfollow` opens a `confirm()`, which the driver auto-accepts.
 - **The unfollow log pads usernames with `&nbsp;`.** A cp1252 Windows console prints them as `�`. The driver collapses whitespace before printing.
 - **An action block stops the whole queue.** `unfollowUser()` returns `blocked` for HTTP 429, `spam: true` or an error matching `feedback_required|checkpoint|action_blocked|try again later|rate limit`, and the loop `break`s on it. `All DONE!` never shows up after that, so the driver's `wait_for_selector(".unfollow-log-container .clr-green")` times out after 30 s. When you mock a block, replace that wait with `page.wait_for_timeout(2000)`. Any other error (a plain 400, HTML, a GraphQL `errors`) counts as `failed` and the queue moves on.
+- **A stale `node_modules` fails with `bun: command not found: webpack`.** After switching branches or lockfiles, run `bun install` first. If the build fails, `dist/dist.js` keeps the old bundle and the driver happily tests it, so check the build output before trusting `OK`.
 - **The mock only proves what the app sends.** It can't tell you whether Instagram still accepts the mutation: `INSTAGRAM_UNFOLLOW_DOC_ID` in `src/constants/constants.ts` can rotate on any Instagram deploy. If real unfollows start failing with a GraphQL error, copy the `doc_id` from the request the Unfollow button sends to `/api/graphql` (DevTools Network tab).
